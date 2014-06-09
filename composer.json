@@ -1,0 +1,24 @@
+{
+    "name": "arkanmgerges/multi-tier-architecture",
+    "type": "library",
+    "description": "Multi-Tier Architecture core used for building applications",
+    "keywords": ["multi-tier-architecture"],
+    "homepage": "https://github.com/arkanmgerges/multi-tier-architecture",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Arkan M. Gerges",
+            "email": "arkan.m.gerges@gmail.com",
+            "homepage": "http://arkan.pro",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "MultiTierArchitecture": "src"
+        }
+    }
+}
