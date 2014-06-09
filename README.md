@@ -7,4 +7,3 @@ This is a multi-tier architecture core used for creating applications, it has a 
 2. Data gateway layer:
   This layer is responsible of taking the request sent from the use case and return a response, this layer can interact with the data base, calls to api, using memcache ...etc
 3. Entities are recognized by both layers use case and data gateway, and they do not have any dependencies.
-
