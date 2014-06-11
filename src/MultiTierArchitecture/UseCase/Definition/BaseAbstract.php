@@ -4,6 +4,7 @@ namespace MultiTierArchitecture\UseCase\Definition;
 use MultiTierArchitecture\Boundary\Definition\RequestAbstract;
 use MultiTierArchitecture\Boundary\Definition\ResponseAbstract;
 use MultiTierArchitecture\DataGateway\Definition\RepositoryInterface;
+use MultiTierArchitecture\Definition\CommandInterface;
 
 /**
  * This is 'base' abstract use case that contains a common code for the use cases in 'profile' namespace
@@ -13,7 +14,7 @@ use MultiTierArchitecture\DataGateway\Definition\RepositoryInterface;
  * @author   Arkan M. Gerges <arkan.m.gerges@gmail.com>
  * @version  GIT: $Id:$
  */
-abstract class BaseAbstract implements UseCaseInterface, RequestResponseInterface
+abstract class BaseAbstract implements UseCaseInterface, RequestResponseInterface, CommandInterface
 {
     /**
      * @var RequestAbstract  $request Object
