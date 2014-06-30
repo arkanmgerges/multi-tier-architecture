@@ -185,7 +185,9 @@ abstract class EntityMapperAbstract
         $entityAttribute = $this->mappingFirstEntityToSecondEntityAttributes[$attributeName];
         $setterMethod    = 'set' . ucfirst($entityAttribute);
 
-        $secondEntity->$setterMethod($attributeData);
+        if (method_exists($secondEntity, $setterMethod)) {
+            $secondEntity->$setterMethod($attributeData);
+        }
     }
 
     /**
@@ -266,7 +268,9 @@ abstract class EntityMapperAbstract
     {
         $entityAttribute = $this->mappingSecondEntityToFirstEntityAttributes[$attributeName];
         $setterMethod    = 'set' . ucfirst($entityAttribute);
-        $entity->$setterMethod($attributeData);
+        if (method_exists($entity, $setterMethod)) {
+            $entity->$setterMethod($attributeData);
+        }
     }
 
     /**
@@ -347,6 +351,20 @@ abstract class EntityMapperAbstract
     {
         return array_key_exists($attributeValue, $this->mappingFirstEntityToSecondEntityAttributes) ?
             $this->mappingFirstEntityToSecondEntityAttributes[$attributeValue] :
+            '';
+    }
+
+    /**
+     * Get mapped attribute from the 'data' member mapped to first attribute for the passed parameter
+     *
+     * @param string  $attributeValue  Value that the caller wants its second mapping attribute to be fetched
+     *
+     * @return string Mapped first attribute for the passed parameter
+     */
+    public function getMappedFirstAttributeByOneAttributeValue($attributeValue)
+    {
+        return array_key_exists($attributeValue, $this->mappingSecondEntityToFirstEntityAttributes) ?
+            $this->mappingSecondEntityToFirstEntityAttributes[$attributeValue] :
             '';
     }
 
