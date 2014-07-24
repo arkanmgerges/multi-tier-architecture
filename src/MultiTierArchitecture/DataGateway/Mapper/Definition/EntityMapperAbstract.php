@@ -14,14 +14,24 @@ use MultiTierArchitecture\Entity\Definition\EntityInterface;
 abstract class EntityMapperAbstract
 {
     /**
-     * @var array  $mappingFirstEntityToSecondEntityAttributes  array with keys mapped to other entity's keys
+     * @var array  $mappingFirstEntityToSecondEntityAttributes  Array with keys mapped to other entity's keys
      */
     private $mappingFirstEntityToSecondEntityAttributes = [];
 
     /**
-     * @var array  $mappingSecondEntityToFirstEntityAttributes  array with keys mapped to entity's keys
+     * @var array  $mappingSecondEntityToFirstEntityAttributes  Array with keys mapped to entity's keys
      */
     private $mappingSecondEntityToFirstEntityAttributes = [];
+
+    /**
+     * @var array  $mappingKeysWithDirectionSecondToFirst  Array for mappings data recursively
+     */
+    private $mappingKeysWithDirectionSecondToFirst = [];
+
+    /**
+     * @var array  $mappingKeysWithDirectionFirstToSecond  Array for mappings data recursively
+     */
+    private $mappingKeysWithDirectionFirstToSecond = [];
 
     /**
      * @var array  $data  Data set and later need to be mapped to entities
@@ -45,6 +55,30 @@ abstract class EntityMapperAbstract
             array_flip($this->mappingSecondEntityToFirstEntityAttributes);
         $this->mappingSecondEntityToFirstEntityAttributes +=
             array_flip($this->mappingFirstEntityToSecondEntityAttributes);
+    }
+
+    /**
+     * Set mapping keys that is from direction first to second
+     *
+     * @param array  $mappingKeys  Mapping array
+     *
+     * @return void
+     */
+    public function setMappingKeysWithDirectionFirstToSecond($mappingKeys)
+    {
+        $this->mappingKeysWithDirectionFirstToSecond = $mappingKeys;
+    }
+
+    /**
+     * Set mapping keys that is from direction second to first
+     *
+     * @param array  $mappingKeys  Mapping array
+     *
+     * @return void
+     */
+    public function setMappingKeysWithDirectionSecondToFirst($mappingKeys)
+    {
+        $this->mappingKeysWithDirectionSecondToFirst = $mappingKeys;
     }
 
     /**
@@ -101,8 +135,8 @@ abstract class EntityMapperAbstract
     public function setArrays(array $arrays)
     {
         $this->data = (isset($arrays[0]) && is_array($arrays[0])) ?
-                          $arrays :
-                          [$arrays];
+            $arrays :
+            [$arrays];
     }
 
     /**
@@ -155,9 +189,12 @@ abstract class EntityMapperAbstract
     private function mapAttributesFromFirstEntityToSecondEntityAndReturnEntity($data, $secondEntity)
     {
         $canAppendToSecondEntity = false;
+        if (!empty($this->mappingKeysWithDirectionFirstToSecond)) {
+            $data = $this->mapKeys($data, $this->mappingKeysWithDirectionFirstToSecond);
+        }
         foreach ($data as $attributeName => $attributeData) {
             if (
-                isset($this->mappingFirstEntityToSecondEntityAttributes[$attributeName])
+            isset($this->mappingFirstEntityToSecondEntityAttributes[$attributeName])
             ) {
                 $this->setSecondEntityAttribute($secondEntity, $attributeName, $attributeData);
                 $canAppendToSecondEntity = true;
@@ -239,10 +276,11 @@ abstract class EntityMapperAbstract
     private function mapAttributesFromSecondEntityToFirstEntityAndReturnEntity($data, $entity)
     {
         $canAppendToEntity = false;
+        if (!empty($this->mappingKeysWithDirectionSecondToFirst)) {
+            $data = $this->mapKeys($data, $this->mappingKeysWithDirectionSecondToFirst);
+        }
         foreach ($data as $attributeName => $attributeData) {
-            if (
-                isset($this->mappingSecondEntityToFirstEntityAttributes[$attributeName])
-            ) {
+            if (isset($this->mappingSecondEntityToFirstEntityAttributes[$attributeName])) {
                 $this->setFirstEntityAttribute($entity, $attributeName, $attributeData);
                 $canAppendToEntity = true;
             }
@@ -254,6 +292,54 @@ abstract class EntityMapperAbstract
 
         return null;
     }
+
+
+    /**
+     * Map data array keys to another keys specified by $mappingData
+     *
+     * @param array  $data         Data that need its keys to be mapped
+     * @param array  $mappingData  Array of array, this is the mapping keys
+     *                             to another (e.g. [['id' => 'userId', 'level' => 'userLevel'], [..etc]])
+     *
+     * @return array Result array
+     */
+    public static function mapKeys($data, $mappingData)
+    {
+        $retResponse = [];
+        foreach ($data as $key => $value) {
+            if (is_array($data[$key])) {
+                $retResponse[self::returnKey($key, $mappingData)] = self::mapKeys($data[$key], $mappingData);
+            }
+            else {
+                $retResponse[self::returnKey($key, $mappingData)] = $data[$key];
+            }
+        }
+        return $retResponse;
+    }
+
+    /**
+     * Search for mapping key
+     *
+     * @param int|string  $key          Key that will be used in the search
+     * @param array       $mappingData  Array of array that has mapping data
+     *
+     * @return mixed
+     */
+    private static function returnKey($key, $mappingData)
+    {
+        if (!is_array($mappingData)) {
+            return $key;
+        }
+
+        $arrayCount = count($mappingData);
+        for ($index = 0; $index < $arrayCount; $index++) {
+            if (isset($mappingData[$index][$key])) {
+                return $mappingData[$index][$key];
+            }
+        }
+        return $key;
+    }
+
 
     /**
      * Set entity attribute based on the attribute name and attribute data
