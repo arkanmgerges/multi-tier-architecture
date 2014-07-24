@@ -308,10 +308,17 @@ abstract class EntityMapperAbstract
         $retResponse = [];
         foreach ($data as $key => $value) {
             if (is_array($data[$key])) {
-                $retResponse[self::returnKey($key, $mappingData)] = self::mapKeys($data[$key], $mappingData);
+                $tmpKey = self::returnKey($key, $mappingData);
+                if (isset($mappingData[$key])) {
+                    $retResponse[$tmpKey] = self::mapKeys($data[$key], $mappingData[$key]);
+                }
+                else {
+                    $retResponse[$tmpKey] = self::mapKeys($data[$key], $mappingData);
+                }
             }
             else {
-                $retResponse[self::returnKey($key, $mappingData)] = $data[$key];
+                $tmpKey               = self::returnKey($key, $mappingData);
+                $retResponse[$tmpKey] = $data[$key];
             }
         }
         return $retResponse;
@@ -320,21 +327,27 @@ abstract class EntityMapperAbstract
     /**
      * Search for mapping key
      *
-     * @param int|string  $key          Key that will be used in the search
-     * @param array       $mappingData  Array of array that has mapping data
+     * @param int|string  $key           Key that will be used in the search
+     * @param array       $mappingArray  Array of array that has mapping data
      *
      * @return mixed
      */
-    private static function returnKey($key, $mappingData)
+    private static function returnKey($key, $mappingArray)
     {
-        if (!is_array($mappingData)) {
+        if (!is_array($mappingArray)) {
             return $key;
         }
 
-        $arrayCount = count($mappingData);
-        for ($index = 0; $index < $arrayCount; $index++) {
-            if (isset($mappingData[$index][$key])) {
-                return $mappingData[$index][$key];
+        foreach ($mappingArray as $mappingKey => $mappingData) {
+            if (is_array($mappingData)) {
+                if (isset($mappingData[$key])) {
+                    return $mappingData[$key];
+                }
+            }
+            else {
+                if ($mappingKey == $key) {
+                    return $mappingData;
+                }
             }
         }
         return $key;
