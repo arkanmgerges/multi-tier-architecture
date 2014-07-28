@@ -192,6 +192,7 @@ abstract class EntityMapperAbstract
         if (!empty($this->mappingKeysWithDirectionFirstToSecond)) {
             $data = $this->mapKeys($data, $this->mappingKeysWithDirectionFirstToSecond);
         }
+
         foreach ($data as $attributeName => $attributeData) {
             if (
             isset($this->mappingFirstEntityToSecondEntityAttributes[$attributeName])
@@ -279,6 +280,7 @@ abstract class EntityMapperAbstract
         if (!empty($this->mappingKeysWithDirectionSecondToFirst)) {
             $data = $this->mapKeys($data, $this->mappingKeysWithDirectionSecondToFirst);
         }
+
         foreach ($data as $attributeName => $attributeData) {
             if (isset($this->mappingSecondEntityToFirstEntityAttributes[$attributeName])) {
                 $this->setFirstEntityAttribute($entity, $attributeName, $attributeData);
@@ -303,21 +305,20 @@ abstract class EntityMapperAbstract
      *
      * @return array Result array
      */
-    public static function mapKeys($data, $mappingData)
+    public static function mapKeys($data, $mappingData, $depth = 0)
     {
         $retResponse = [];
         foreach ($data as $key => $value) {
+            $tmpKey = ($depth > 0) ? self::returnKey($key, $mappingData) : $key;
             if (is_array($data[$key])) {
-                $tmpKey = self::returnKey($key, $mappingData);
                 if (isset($mappingData[$key])) {
-                    $retResponse[$tmpKey] = self::mapKeys($data[$key], $mappingData[$key]);
+                    $retResponse[$tmpKey] = self::mapKeys($data[$key], $mappingData[$key], $depth + 1);
                 }
                 else {
-                    $retResponse[$tmpKey] = self::mapKeys($data[$key], $mappingData);
+                    $retResponse[$tmpKey] = self::mapKeys($data[$key], $mappingData, $depth + 1);
                 }
             }
             else {
-                $tmpKey               = self::returnKey($key, $mappingData);
                 $retResponse[$tmpKey] = $data[$key];
             }
         }
