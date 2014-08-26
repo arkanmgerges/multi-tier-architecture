@@ -255,7 +255,7 @@ abstract class EntityMapperAbstract
      *
      * @return EntityInterface|null
      */
-    private function createAndReturnNewFirstEntity($data, $entityName)
+    protected function createAndReturnNewFirstEntity($data, $entityName)
     {
         if (is_array($data)) {
             $entity = $this->getFirstEntityByName($entityName);
