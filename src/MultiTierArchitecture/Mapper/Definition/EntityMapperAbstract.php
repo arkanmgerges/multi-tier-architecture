@@ -1,5 +1,5 @@
 <?php
-namespace MultiTierArchitecture\DataGateway\Mapper\Definition;
+namespace MultiTierArchitecture\Mapper\Definition;
 
 use MultiTierArchitecture\Entity\Definition\EntityInterface;
 
