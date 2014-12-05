@@ -52,7 +52,8 @@ abstract class RequestAbstract
             return $data;
         }
         elseif (is_string($data)) {
-            return json_decode($data, true);
+            $attempt = json_decode($data, true);
+            return empty($attempt) ? $data : $attempt;
         }
 
         return [];
@@ -74,7 +75,7 @@ abstract class RequestAbstract
     /**
      * Set data into data array at a specified key
      *
-     * @param int    $key   Key where the object will be saved
+     * @param mixed  $key   Key where the object will be saved
      * @param mixed  $data  it that will have its own data
      *
      * @return void
